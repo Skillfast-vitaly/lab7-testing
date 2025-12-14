@@ -1,4 +1,4 @@
-image: golang:1.22
+image: golang:1.25
 
 stages:
   - build
@@ -47,21 +47,21 @@ test:
 
 test:go1.20:
   stage: test
-  image: golang:1.20
+  image: golang:1.22
   script:
     - go mod download || go mod init gitlab.com/yourusername/lab7-testing
     - go test -v ./...
 
 test:go1.21:
   stage: test
-  image: golang:1.21
+  image: golang:1.23
   script:
     - go mod download || go mod init gitlab.com/yourusername/lab7-testing
     - go test -v ./...
 
 test:go1.22:
   stage: test
-  image: golang:1.22
+  image: golang:1.24
   script:
     - go mod download || go mod init gitlab.com/yourusername/lab7-testing
     - go test -v ./...

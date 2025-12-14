@@ -1,3 +1,3 @@
 module github.com/yourusername/lab7-testing
 
-go 1.22
+go 1.25
