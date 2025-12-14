@@ -1,0 +1,85 @@
+image: golang:1.22
+
+stages:
+  - build
+  - test
+  - report
+
+variables:
+  GO111MODULE: "on"
+  CGO_ENABLED: "0"
+
+before_script:
+  - go version
+  - go env
+
+# Кеширование зависимостей для ускорения сборки
+cache:
+  paths:
+    - .go/pkg/mod/
+
+build:
+  stage: build
+  script:
+    - go mod download || go mod init gitlab.com/yourusername/lab7-testing
+    - go build -v ./...
+  artifacts:
+    paths:
+      - "*.exe"
+      - "lab7-testing"
+    expire_in: 1 hour
+
+test:
+  stage: test
+  script:
+    - go mod download || true
+    - go test -v -race -coverprofile=coverage.out ./...
+    - go tool cover -func=coverage.out
+  coverage: '/total:\s+\(statements\)\s+(\d+\.\d+)%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.out
+    paths:
+      - coverage.out
+    expire_in: 1 week
+
+test:go1.20:
+  stage: test
+  image: golang:1.20
+  script:
+    - go mod download || go mod init gitlab.com/yourusername/lab7-testing
+    - go test -v ./...
+
+test:go1.21:
+  stage: test
+  image: golang:1.21
+  script:
+    - go mod download || go mod init gitlab.com/yourusername/lab7-testing
+    - go test -v ./...
+
+test:go1.22:
+  stage: test
+  image: golang:1.22
+  script:
+    - go mod download || go mod init gitlab.com/yourusername/lab7-testing
+    - go test -v ./...
+
+code_quality:
+  stage: test
+  image: golangci/golangci-lint:latest
+  script:
+    - golangci-lint run --timeout 5m
+  allow_failure: true
+
+coverage_report:
+  stage: report
+  dependencies:
+    - test
+  script:
+    - echo "Test coverage report:"
+    - go tool cover -func=coverage.out
+  only:
+    - main
+    - master
